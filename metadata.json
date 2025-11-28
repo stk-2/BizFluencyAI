@@ -1,0 +1,7 @@
+{
+  "name": "BizFluency AI",
+  "description": "A premier AI-powered business English learning platform featuring real-time roleplay, document correction, and multimodal practice scenarios.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
