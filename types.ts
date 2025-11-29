@@ -1,3 +1,4 @@
+
 export enum View {
   DASHBOARD = 'DASHBOARD',
   LEVEL_CHECK = 'LEVEL_CHECK',
@@ -38,4 +39,10 @@ export interface Scenario {
   description: string;
   icon: string;
   systemInstruction: string;
+}
+
+export interface AppSettings {
+  textModel: string;
+  visionModel: string;
+  apiKey: string;
 }

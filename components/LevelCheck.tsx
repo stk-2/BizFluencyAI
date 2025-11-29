@@ -1,12 +1,15 @@
+
 import React, { useState } from 'react';
 import { CEFRLevel } from '../types';
 import { assessUserLevel } from '../services/geminiService';
 
 interface LevelCheckProps {
   onComplete: (level: CEFRLevel, name: string, industry: string) => void;
+  model: string;
+  apiKey: string;
 }
 
-const LevelCheck: React.FC<LevelCheckProps> = ({ onComplete }) => {
+const LevelCheck: React.FC<LevelCheckProps> = ({ onComplete, model, apiKey }) => {
   const [name, setName] = useState('');
   const [industry, setIndustry] = useState('');
   const [intro, setIntro] = useState('');
@@ -17,23 +20,23 @@ const LevelCheck: React.FC<LevelCheckProps> = ({ onComplete }) => {
     if (!name || !industry || !intro) return;
     
     setLoading(true);
-    const level = await assessUserLevel(intro);
+    const level = await assessUserLevel(intro, model, apiKey);
     setLoading(false);
     onComplete(level, name, industry);
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white rounded-2xl shadow-lg border border-slate-100 mt-10">
-      <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome to BizFluency</h2>
-      <p className="text-slate-600 mb-8">Let's set up your profile and assess your starting level.</p>
+    <div className="max-w-2xl mx-auto p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 mt-10 transition-colors">
+      <h2 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">Welcome to BizFluency</h2>
+      <p className="text-slate-600 dark:text-slate-300 mb-8">Let's set up your profile and assess your starting level.</p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Your Name</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Your Name</label>
           <input 
             type="text" 
             required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. Kenji Tanaka"
@@ -41,9 +44,9 @@ const LevelCheck: React.FC<LevelCheckProps> = ({ onComplete }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Industry</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Industry</label>
           <select 
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600"
             value={industry}
             onChange={(e) => setIndustry(e.target.value)}
             required
@@ -59,16 +62,16 @@ const LevelCheck: React.FC<LevelCheckProps> = ({ onComplete }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
             Short Introduction (English)
           </label>
-          <p className="text-xs text-slate-500 mb-2">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
             Introduce yourself, your job role, and your goals for learning business English. 
             (Write at least 3-4 sentences for better accuracy).
           </p>
           <textarea 
             required
-            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none h-32"
+            className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none h-32 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border-slate-300 dark:border-slate-600"
             value={intro}
             onChange={(e) => setIntro(e.target.value)}
             placeholder="Hi, my name is... I work as a project manager..."

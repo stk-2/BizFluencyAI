@@ -1,14 +1,16 @@
-import { GoogleGenAI, SchemaType, Type } from "@google/genai";
+
+import { GoogleGenAI, Type } from "@google/genai";
 import { CEFRLevel } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const getClient = (apiKey?: string) => new GoogleGenAI({ apiKey: apiKey || process.env.API_KEY });
 
 // --- Text & Roleplay ---
 
-export const assessUserLevel = async (introduction: string): Promise<CEFRLevel> => {
+export const assessUserLevel = async (introduction: string, model: string = "gemini-2.5-flash", apiKey?: string): Promise<CEFRLevel> => {
   try {
+    const ai = getClient(apiKey);
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: model,
       contents: `Analyze the following English introduction text and estimate the CEFR level (A1-C2). 
       Return ONLY the level code (e.g., "B1"). Text: "${introduction}"`,
     });
@@ -26,10 +28,13 @@ export const assessUserLevel = async (introduction: string): Promise<CEFRLevel> 
 export const getRoleplayResponse = async (
   history: { role: string; parts: { text: string }[] }[],
   message: string,
-  systemInstruction: string
+  systemInstruction: string,
+  model: string = "gemini-2.5-flash",
+  apiKey?: string
 ) => {
+  const ai = getClient(apiKey);
   const chat = ai.chats.create({
-    model: "gemini-2.5-flash",
+    model: model,
     config: {
       systemInstruction: systemInstruction,
     },
@@ -40,9 +45,10 @@ export const getRoleplayResponse = async (
   return result.text;
 };
 
-export const getFeedbackOnMessage = async (message: string, context: string) => {
+export const getFeedbackOnMessage = async (message: string, context: string, model: string = "gemini-2.5-flash", apiKey?: string) => {
+  const ai = getClient(apiKey);
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: model,
     contents: `As an English coach, analyze this user sentence used in a ${context} context: "${message}".
     Provide a brief JSON response with "corrected" (natural business English version) and "tip" (brief explanation).
     Return JSON only.`,
@@ -62,9 +68,10 @@ export const getFeedbackOnMessage = async (message: string, context: string) => 
 
 // --- Document Review ---
 
-export const reviewBusinessDocument = async (text: string, type: string) => {
+export const reviewBusinessDocument = async (text: string, type: string, model: string = "gemini-3-pro-preview", apiKey?: string) => {
+  const ai = getClient(apiKey);
   const response = await ai.models.generateContent({
-    model: "gemini-3-pro-preview", // Use smarter model for complex reasoning
+    model: model, 
     contents: `Review the following business ${type}. Improve tone, grammar, and clarity for a professional setting.
     
     Original Text:
@@ -80,9 +87,10 @@ export const reviewBusinessDocument = async (text: string, type: string) => {
 
 // --- Multimodal ---
 
-export const describeBusinessImage = async (base64Image: string, prompt: string) => {
+export const describeBusinessImage = async (base64Image: string, prompt: string, model: string = "gemini-2.5-flash-image", apiKey?: string) => {
+  const ai = getClient(apiKey);
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-image",
+    model: model,
     contents: {
       parts: [
         {

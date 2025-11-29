@@ -1,12 +1,14 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { UserProfile } from '../types';
 
 interface LiveConversationProps {
   user: UserProfile;
+  apiKey: string;
 }
 
-const LiveConversation: React.FC<LiveConversationProps> = ({ user }) => {
+const LiveConversation: React.FC<LiveConversationProps> = ({ user, apiKey }) => {
   const [isActive, setIsActive] = useState(false);
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [volume, setVolume] = useState(0);
@@ -21,12 +23,6 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ user }) => {
 
   const cleanup = () => {
     if (sessionRef.current) {
-        // Try to close if possible, though strict close method might vary.
-        // The pattern is to close the ws connection usually.
-        // Assuming session object has close or we just stop sending.
-        // The provided SDK example uses callbacks. 'close' is on session?
-        // Actually the example shows session.close() in rules section.
-        // But the connect return is a promise that resolves to session.
         sessionRef.current.then((s: any) => {
             try { s.close(); } catch(e) {}
         });
@@ -53,7 +49,7 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ user }) => {
   const startSession = async () => {
     try {
       setStatus('connecting');
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: apiKey || process.env.API_KEY });
       
       // Setup Audio Contexts
       const inputCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
@@ -167,10 +163,10 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ user }) => {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-8 bg-white rounded-2xl shadow-lg border border-slate-100 text-center">
+    <div className="max-w-2xl mx-auto mt-10 p-8 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700 text-center transition-colors">
         <div className="mb-8">
             <div className={`w-32 h-32 mx-auto rounded-full flex items-center justify-center transition-all duration-300 ${
-                status === 'connected' ? 'bg-emerald-100 ring-4 ring-emerald-50' : 'bg-slate-100'
+                status === 'connected' ? 'bg-emerald-100 dark:bg-emerald-900/30 ring-4 ring-emerald-50 dark:ring-emerald-900/50' : 'bg-slate-100 dark:bg-slate-700'
             }`}>
                 {status === 'connected' ? (
                      <div className="flex gap-1 items-end h-12">
@@ -182,16 +178,16 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ user }) => {
                         ))}
                      </div>
                 ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-slate-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-12 h-12 text-slate-400 dark:text-slate-500">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
                     </svg>
                 )}
             </div>
             
-            <h2 className="text-2xl font-bold mt-6 text-slate-800">
+            <h2 className="text-2xl font-bold mt-6 text-slate-800 dark:text-white">
                 {status === 'connected' ? 'Listening...' : 'Live Conversation Practice'}
             </h2>
-            <p className="text-slate-500 mt-2">
+            <p className="text-slate-500 dark:text-slate-400 mt-2">
                 {status === 'connected' 
                     ? 'Speak naturally. The AI will respond in real-time.' 
                     : 'Practice speaking with zero latency. Great for pronunciation and fluency.'}
@@ -199,7 +195,7 @@ const LiveConversation: React.FC<LiveConversationProps> = ({ user }) => {
         </div>
 
         {status === 'error' && (
-            <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg">
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-lg">
                 Connection failed. Please check microphone permissions and try again.
             </div>
         )}
